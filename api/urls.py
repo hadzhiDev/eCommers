@@ -1,6 +1,7 @@
 from django.urls import path, include
 import api.views
 from . import views
+from .yasg import urlpatterns as url_doc
 
 from rest_framework.routers import DefaultRouter
 
@@ -16,9 +17,10 @@ router.register('order-items', views.OrderItemViewSet)
 router.register('stocks', views.StockViewSet)
 router.register('stocks-image', views.StockImageViewSet)
 
-
 urlpatterns = [
     path('auth/', include('api.auth.urls')),
 
     path('', include(router.urls))
 ]
+
+urlpatterns += url_doc

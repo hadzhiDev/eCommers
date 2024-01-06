@@ -48,3 +48,26 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class ChangePasswordSerializer(serializers.Serializer):
+    model = User
+
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True, validators=[validate_password])
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'first_name', 'last_name', 'password', 'phone', 'avatar',)
+
+    def create(self, validated_data):
+        user = User(
+            email=validated_data['email'],
+            name=validated_data['name'],
+        )
+
+        user.set_password(validated_data['password'])
+        user.save()
+
+        return user

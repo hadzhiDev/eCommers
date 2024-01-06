@@ -48,7 +48,7 @@ class TagViewSet(UltraModelViewSet):
 
 
 class ProductViewSet(UltraModelViewSet):
-    queryset = Product.objects.all()
+    queryset = Product.objects.exclude(quantity=0)
     serializer_classes = {
         'list': ReadProductSerializer,
         'update': ProductSerializer,

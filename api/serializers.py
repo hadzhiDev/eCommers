@@ -73,6 +73,13 @@ class ReadProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+    # def validate(self, attrs):
+    #     print(Product.objects.all())
+    # sold_produzts = Product.objects.filter(quantity=0)
+    # for pro in sold_produzts:
+    #     pro.delete()
+    #     print(pro)
+
     def get_image(self, product):
         request = self.context['request']
         if product.image:
@@ -119,7 +126,7 @@ class ItemForCreateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ('product', 'quantity',)
+        fields = ('product', 'quantity', )
 
 
 class CreateOrderSerializer(serializers.ModelSerializer):
@@ -130,6 +137,17 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, attrs):
+        items = attrs['items']
+        for item in items:
+            prod = Product.objects.get(name=item['product'])
+            if prod.quantity < item['quantity']:
+                print('ishladi')
+                raise serializers.ValidationError({
+                    'itmes': [
+                        f'The product {prod.name} left only {prod.quantity} in the stock'
+                    ]
+                })
+
         if len(attrs['name']) < 3:
             raise serializers.ValidationError({
                 'name': [
@@ -138,15 +156,13 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             })
         return attrs
 
-    def validate_home(self, value):
-        if len(value) > 3:
-            raise serializers.ValidationError(['Home must be at least 3 characters'])
-        return value
-
     def create(self, validated_data):
         items = validated_data.pop('items', [])
         order = Order.objects.create(**validated_data)
         for item in items:
+            prod = Product.objects.get(name=item['product'])
+            prod.quantity = prod.quantity - item['quantity']
+            prod.save()
             OrderItem.objects.create(**item, order=order)
         return order
 

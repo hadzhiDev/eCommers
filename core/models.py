@@ -52,6 +52,12 @@ class Product(TimeStampAbstractModel):
             return self.images.first().image
         return None
 
+    # def clean(self):
+    #     if self.quantity == 0:
+    #         print(self)
+    #         self.delete()
+
+
     def __str__(self):
         return f'{self.name}'
 
@@ -137,6 +143,11 @@ class OrderItem(TimeStampAbstractModel):
 
     def __str__(self):
         return f'{self.order} - {self.product}'
+
+    def clean(self):
+        prod = Product.objects.get(id=self.product.id)
+        prod.quantity = prod.quantity - self.quantity
+        prod.save()
 
     @property
     def total_price(self):

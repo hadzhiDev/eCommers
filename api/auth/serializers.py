@@ -1,5 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
+from django.core.exceptions import ValidationError
+
 from account.models import User
 
 
@@ -42,6 +44,16 @@ class RegisterUserSerializer(serializers.ModelSerializer):
             'phone': {'required': True},
         }
 
+    def validate(self, attrs):
+        for item in attrs.items():
+            if not item[1]:
+                raise ValidationError({
+                    item[0]: [
+                        f'{item[0]} could not be empty'
+                    ]
+                })
+        return attrs
+
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
@@ -52,7 +64,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     model = User
 
-    old_password = serializers.CharField(required=True)
+    old_password = serializers.CharField(required=True,)
     new_password = serializers.CharField(required=True, validators=[validate_password])
 
 
@@ -61,13 +73,20 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'first_name', 'last_name', 'password', 'phone', 'avatar',)
 
-    def create(self, validated_data):
-        user = User(
-            email=validated_data['email'],
-            name=validated_data['name'],
-        )
+    def validate(self, attrs):
+        for item in attrs.items():
+            if not item[1]:
+                raise ValidationError({
+                    item[0]: [
+                        f'{item[0]} could not be empty'
+                    ]
+                })
+        return attrs
 
-        user.set_password(validated_data['password'])
-        user.save()
-
-        return user
+    def update(self, instance, validated_data):
+        # user_split = instance.split(' ')
+        # user = User.objects.get()
+        # if validated_data['avatar'] is None and instance.avatar:
+        #     validated_data['avatar'] = instance.avatar
+            # print(instance.id)
+        return super().update(instance, validated_data)

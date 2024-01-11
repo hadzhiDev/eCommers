@@ -57,7 +57,6 @@ class Product(TimeStampAbstractModel):
     #         print(self)
     #         self.delete()
 
-
     def __str__(self):
         return f'{self.name}'
 

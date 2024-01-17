@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from decouple import config
 from pathlib import Path
-import os
+import os, json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG')
+DEBUG = json.loads(config('DEBUG'))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = json.loads(config('ALLOWED_HOSTS'))
 
 
 # Application definition
@@ -154,6 +154,18 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_USE_TLS = json.loads(config('EMAIL_USE_TLS'))
+EMAIL_USE_SSL = json.loads(config('EMAIL_USE_SSL'))
+EMAIL_PORT = int(config('EMAIL_PORT'))
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+FRONT_HOST = config('FRONT_HOST')
+RESET_PASSWORD_LINK = config('RESET_PASSWORD_LINK')
 
 CORS_ORIGIN_ALLOW_ALL = True
 

@@ -73,13 +73,6 @@ class ReadProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
-    # def validate(self, attrs):
-    #     print(Product.objects.all())
-    # sold_produzts = Product.objects.filter(quantity=0)
-    # for pro in sold_produzts:
-    #     pro.delete()
-    #     print(pro)
-
     def get_image(self, product):
         request = self.context['request']
         if product.image:
@@ -139,12 +132,10 @@ class CreateOrderSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         items = attrs['items']
         for item in items:
-            prod = Product.objects.get(name=item['product'])
-            if prod.quantity < item['quantity']:
-                print('ishladi')
+            if item['product'].quantity < item['quantity']:
                 raise serializers.ValidationError({
                     'itmes': [
-                        f'The product {prod.name} left only {prod.quantity} in the stock'
+                        f"The product {item['product'].name} left only {item['product'].quantity} in the stock"
                     ]
                 })
 
@@ -160,7 +151,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
         items = validated_data.pop('items', [])
         order = Order.objects.create(**validated_data)
         for item in items:
-            prod = Product.objects.get(name=item['product'])
+            prod = Product.objects.get(id=item['product'].id)
             prod.quantity = prod.quantity - item['quantity']
             prod.save()
             OrderItem.objects.create(**item, order=order)

@@ -52,11 +52,6 @@ class Product(TimeStampAbstractModel):
             return self.images.first().image
         return None
 
-    # def clean(self):
-    #     if self.quantity == 0:
-    #         print(self)
-    #         self.delete()
-
     def __str__(self):
         return f'{self.name}'
 

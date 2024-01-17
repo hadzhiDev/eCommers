@@ -84,9 +84,15 @@ class ProfileSerializer(serializers.ModelSerializer):
         return attrs
 
     def update(self, instance, validated_data):
-        # user_split = instance.split(' ')
-        # user = User.objects.get()
-        # if validated_data['avatar'] is None and instance.avatar:
-        #     validated_data['avatar'] = instance.avatar
-            # print(instance.id)
         return super().update(instance, validated_data)
+
+
+class SendResetPasswordKeySerializer(serializers.Serializer):
+
+    email = serializers.EmailField()
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+
+    key = serializers.UUIDField()
+    new_password = serializers.CharField(validators=[validate_password])

@@ -23,7 +23,7 @@ class User(AbstractUser, TimeStampAbstractModel):
                                force_format='WEBP', quality=90, verbose_name='аватарка',
                                null=True, blank=True)
     phone = PhoneNumberField(max_length=100, unique=True, verbose_name='номер телефона', blank=True, null=True)
-    email = models.EmailField(verbose_name='электронная почта', unique=True)
+    email = models.EmailField(verbose_name='электронная почта', unique=True, blank=True, null=False)
 
     objects = UserManager()
 
@@ -38,3 +38,25 @@ class User(AbstractUser, TimeStampAbstractModel):
 
     def __str__(self):
         return f'{self.get_full_name or str(self.email)}'
+
+
+def get_expire_date():
+    return timezone.now() + timezone.timedelta(days=1)
+
+
+class UserResetPassword(TimeStampAbstractModel):
+
+    class Meta:
+        verbose_name = 'Ключ для сброса пароля'
+        verbose_name_plural = 'Ключи для сброса пароля'
+        ordering = ('-created_at', '-updated_at')
+
+    user = models.OneToOneField('account.User', on_delete=models.CASCADE, verbose_name='пользователь')
+    key = models.UUIDField('ключ', default=uuid4, editable=False, unique=True)
+    expire_date = models.DateTimeField('срок действия', default=get_expire_date)
+
+    def __str__(self):
+        return f'{self.user}'
+
+    def is_expired(self):
+        return timezone.now() > self.expire_date
